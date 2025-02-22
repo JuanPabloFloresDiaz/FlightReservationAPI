@@ -1,6 +1,7 @@
 ﻿using FlightReservationAPI.Domain.Entities;
 using FlightReservationAPI.Domain.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace FlightReservationAPI.Infrastructure.Data
 {
@@ -21,37 +22,9 @@ namespace FlightReservationAPI.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Definir relaciones entre entidades
-            modelBuilder.Entity<Ciudad>()
-                .HasOne(c => c.Pais)
-                .WithMany(p => p.Ciudades)
-                .HasForeignKey(c => c.PaisId);
-
-            modelBuilder.Entity<Destino>()
-                .HasOne(d => d.Ciudad)
-                .WithMany(c => c.Destinos)
-                .HasForeignKey(d => d.CiudadId);
-
-            modelBuilder.Entity<Vuelo>()
-                .HasOne(v => v.Destino)
-                .WithMany(d => d.Vuelos)
-                .HasForeignKey(v => v.DestinoId);
-
-            modelBuilder.Entity<Reserva>()
-                .HasOne(r => r.Cliente)
-                .WithMany(c => c.Reservas)
-                .HasForeignKey(r => r.ClienteId);
-
-            modelBuilder.Entity<Reserva>()
-                .HasOne(r => r.Vuelo)
-                .WithMany()
-                .HasForeignKey(r => r.VueloId);
-
-            modelBuilder.Entity<Documento>()
-                .HasOne(d => d.TipoDocumento)
-                .WithMany(t => t.Documentos)
-                .HasForeignKey(d => d.TipoDocumentoId);
-            
+            // Aplica automáticamente todas las configuraciones de IEntityTypeConfiguration
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            base.OnModelCreating(modelBuilder);
         }
 
         public override int SaveChanges()
@@ -70,6 +43,7 @@ namespace FlightReservationAPI.Infrastructure.Data
             }
             return base.SaveChanges();
         }
+
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())

@@ -33,9 +33,6 @@ namespace FlightReservationAPI.Domain.Entities
         [StringLength(100)]
         public string Direccion { get; set; } = string.Empty;
 
-        [StringLength(10)]
-        public string CodigoPostal { get; set; } = string.Empty;
-
         // Relaciones geográficas
         public Guid CiudadId { get; set; }
         public Ciudad Ciudad { get; set; } = null!;
