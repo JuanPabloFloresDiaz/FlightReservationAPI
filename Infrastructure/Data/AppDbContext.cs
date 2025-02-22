@@ -1,4 +1,5 @@
 ﻿using FlightReservationAPI.Domain.Entities;
+using FlightReservationAPI.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlightReservationAPI.Infrastructure.Data
@@ -50,6 +51,40 @@ namespace FlightReservationAPI.Infrastructure.Data
                 .HasOne(d => d.TipoDocumento)
                 .WithMany(t => t.Documentos)
                 .HasForeignKey(d => d.TipoDocumentoId);
+            
+        }
+
+        public override int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+            return base.SaveChanges();
+        }
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

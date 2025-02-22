@@ -13,5 +13,8 @@ namespace FlightReservationAPI.Domain.Entities
 
         // Relación con Destinos
         public ICollection<Destino> Destinos { get; set; } = new List<Destino>();
+
+        // Relación con Clientes
+        public ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
     }
 }
