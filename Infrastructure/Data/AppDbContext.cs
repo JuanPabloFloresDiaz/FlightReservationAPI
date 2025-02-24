@@ -31,6 +31,19 @@ namespace FlightReservationAPI.Infrastructure.Data
             }
         }
 
+        /// <summary>
+        /// Devuelve dinámicamente el DbSet para una entidad específica.
+        /// </summary>
+        public DbSet<TEntity> GetDbSet<TEntity>() where TEntity : BaseEntity
+        {
+            var property = GetType().GetProperty(typeof(TEntity).Name + "s");
+            if (property == null)
+            {
+                throw new InvalidOperationException($"No se encontró un DbSet para {typeof(TEntity).Name}");
+            }
+            return (DbSet<TEntity>)property.GetValue(this)!;
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Aplica automáticamente todas las configuraciones de IEntityTypeConfiguration

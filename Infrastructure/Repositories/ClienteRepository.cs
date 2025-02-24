@@ -14,37 +14,41 @@ namespace FlightReservationAPI.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task AddAsync(Cliente cliente)
+        public async Task AddAsync(Cliente cliente)
         {
-            throw new NotImplementedException();
+            _context.GetDbSet<Cliente>().Add(cliente);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await _context.GetDbSet<Cliente>().FindAsync(id);
             if (cliente != null)
             {
-                cliente.DeletedAt = DateTime.UtcNow; // Marcar como eliminado
-                _context.Clientes.Update(cliente);
+                cliente.DeletedAt = DateTime.UtcNow;
+                _context.GetDbSet<Cliente>().Update(cliente);
                 await _context.SaveChangesAsync();
             }
         }
 
         public async Task<IEnumerable<Cliente>> GetAllAsync()
         {
-            return await _context.Clientes
-                .Where(c => c.DeletedAt == null) // Filtrar los eliminados
+            return await _context.GetDbSet<Cliente>()
+                .Where(c => c.DeletedAt == null)
                 .ToListAsync();
         }
 
-        public Task<Cliente?> GetByIdAsync(Guid id)
+        public async Task<Cliente?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _context.GetDbSet<Cliente>()
+                .Where(c => c.DeletedAt == null)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public Task UpdateAsync(Cliente cliente)
+        public async Task UpdateAsync(Cliente cliente)
         {
-            throw new NotImplementedException();
+            _context.GetDbSet<Cliente>().Update(cliente);
+            await _context.SaveChangesAsync();
         }
     }
 }

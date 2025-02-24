@@ -1,5 +1,5 @@
-﻿using FlightReservationAPI.Domain.Interfaces;
-using FlightReservationAPI.Domain.Entities;
+﻿using FlightReservationAPI.Domain.Entities;
+using FlightReservationAPI.Domain.Interfaces;
 using FlightReservationAPI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,29 +7,48 @@ namespace FlightReservationAPI.Infrastructure.Repositories
 {
     public class PaisRepository : IPaisRepository
     {
-        public Task AddAsync(Pais pais)
+        private readonly AppDbContext _context;
+
+        public PaisRepository(AppDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteAsync(Guid id)
+        public async Task AddAsync(Pais pais)
         {
-            throw new NotImplementedException();
+            _context.GetDbSet<Pais>().Add(pais);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<Pais>> GetAllAsync()
+        public async Task DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var pais = await _context.GetDbSet<Pais>().FindAsync(id);
+            if (pais != null)
+            {
+                pais.DeletedAt = DateTime.UtcNow;
+                _context.GetDbSet<Pais>().Update(pais);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task<Pais> GetByIdAsync(Guid id)
+        public async Task<IEnumerable<Pais>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.GetDbSet<Pais>()
+                .Where(p => p.DeletedAt == null)
+                .ToListAsync();
         }
 
-        public Task UpdateAsync(Pais pais)
+        public async Task<Pais?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _context.GetDbSet<Pais>()
+                .Where(p => p.DeletedAt == null)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task UpdateAsync(Pais pais)
+        {
+            _context.GetDbSet<Pais>().Update(pais);
+            await _context.SaveChangesAsync();
         }
     }
 }
