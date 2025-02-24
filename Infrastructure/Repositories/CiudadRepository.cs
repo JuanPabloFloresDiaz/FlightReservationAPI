@@ -1,5 +1,5 @@
-﻿using FlightReservationAPI.Domain.Interfaces;
-using FlightReservationAPI.Domain.Entities;
+﻿using FlightReservationAPI.Domain.Entities;
+using FlightReservationAPI.Domain.Interfaces;
 using FlightReservationAPI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,29 +7,48 @@ namespace FlightReservationAPI.Infrastructure.Repositories
 {
     public class CiudadRepository : ICiudadRepository
     {
-        public Task AddAsync(Ciudad ciudad)
+        private readonly AppDbContext _context;
+
+        public CiudadRepository(AppDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteAsync(Guid id)
+        public async Task AddAsync(Ciudad ciudad)
         {
-            throw new NotImplementedException();
+            _context.GetDbSet<Ciudad>().Add(ciudad);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<Ciudad>> GetAllAsync()
+        public async Task DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var ciudad = await _context.GetDbSet<Ciudad>().FindAsync(id);
+            if (ciudad != null)
+            {
+                ciudad.DeletedAt = DateTime.UtcNow;
+                _context.GetDbSet<Ciudad>().Update(ciudad);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task<Ciudad?> GetByIdAsync(Guid id)
+        public async Task<IEnumerable<Ciudad>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.GetDbSet<Ciudad>()
+                .Where(c => c.DeletedAt == null)
+                .ToListAsync();
         }
 
-        public Task UpdateAsync(Ciudad ciudad)
+        public async Task<Ciudad?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _context.GetDbSet<Ciudad>()
+                .Where(c => c.DeletedAt == null)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task UpdateAsync(Ciudad ciudad)
+        {
+            _context.GetDbSet<Ciudad>().Update(ciudad);
+            await _context.SaveChangesAsync();
         }
     }
 }
