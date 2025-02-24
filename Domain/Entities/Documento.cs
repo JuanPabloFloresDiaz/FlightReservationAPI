@@ -6,7 +6,7 @@ namespace FlightReservationAPI.Domain.Entities
     public class Documento : BaseEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        [StringLength(50)]
+        [StringLength(100)]
         [Required]
         public string Nombre { get; set; } = string.Empty;
 
