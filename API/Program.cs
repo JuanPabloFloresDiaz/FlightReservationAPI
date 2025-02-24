@@ -1,6 +1,8 @@
 using FlightReservationAPI.Infrastructure.Data;
+using FlightReservationAPI.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 30)) // Cambia a la versión que estás usando
     ));
 
-// Agregar servicios al contenedor
-builder.Services.AddControllers();
+// Inyección automática de repositorios y servicios
+builder.Services.AddApplicationServices();
+
+builder.Services.AddControllers()
+    .AddApplicationPart(Assembly.GetExecutingAssembly()); // Registra automáticamente los controladores
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

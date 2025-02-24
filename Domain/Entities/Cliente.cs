@@ -44,8 +44,6 @@ namespace FlightReservationAPI.Domain.Entities
 
         public EstadoCivilEnum EstadoCivil { get; set; }
 
-        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
-
         // Relaciones
         public ICollection<DetalleDocumentoCliente> Documentos { get; set; } = new List<DetalleDocumentoCliente>();
         public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
