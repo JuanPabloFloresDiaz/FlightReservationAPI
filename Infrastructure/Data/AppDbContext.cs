@@ -10,15 +10,26 @@ namespace FlightReservationAPI.Infrastructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         // Agregar las entidades
-        public DbSet<Cliente> Clientes { get; set; }
-        public DbSet<TipoDocumento> TiposDocumentos { get; set; }
-        public DbSet<Documento> Documentos { get; set; }
-        public DbSet<DetalleDocumentoCliente> DetallesDocumentosClientes { get; set; }
-        public DbSet<Pais> Paises { get; set; }
-        public DbSet<Ciudad> Ciudades { get; set; }
-        public DbSet<Destino> Destinos { get; set; }
-        public DbSet<Vuelo> Vuelos { get; set; }
-        public DbSet<Reserva> Reservas { get; set; }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            // Registrar automáticamente DbSet para todas las entidades que hereden de BaseEntity
+            RegisterDbSets();
+        }
+
+        private void RegisterDbSets()
+        {
+            var entityTypes = Assembly.GetExecutingAssembly()
+                                      .GetTypes()
+                                      .Where(t => t.IsClass && !t.IsAbstract && typeof(BaseEntity).IsAssignableFrom(t));
+
+            foreach (var entityType in entityTypes)
+            {
+                var dbSetType = typeof(DbSet<>).MakeGenericType(entityType);
+                GetType().GetProperty(entityType.Name)?.SetValue(this, dbSetType);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
